@@ -1,0 +1,1 @@
+Este trabalho se trata de um armario de amostras do IFPR campus Cascavel, onde o usuario pode cadastrar as amotras de rochas e minerais, sendo estas exibidas em suas respectivas paginas, podendo ser deletadas ou editadas, aval do usuario.
