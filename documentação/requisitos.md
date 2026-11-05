@@ -16,7 +16,9 @@
 | RF-04 | RF | Remover rocha | Permitir excluir uma rocha. | Must | rocha é removida.|
 | RF-05| RF | Remover mineral | Permitir excluir uma matéria. | Must | Mineral é removido. |
 | RF-06 | RF | Listar rochas por tipo | Exibir rochas de um tipo selecionado. | Must | Listagem filtrada por tipos corretos. |
-| RF-06 | RF | Listar minerais por tipo | Exibir minerais de um tipo selecionado. | Must | Listagem filtrada por tipos corretos. |
+| RF-07 | RF | Listar minerais por tipo | Exibir minerais de um tipo selecionado. | Must | Listagem filtrada por tipos corretos. |
+| RF-08| RF | Cadastrar Usuários | Permitir o login do usuário. | Must | Campos de email, nome e e senha preenchidos. |
+| RF-09 | RF | Logar Usuários | Permitir o login de usuário. | Must | Dados de usuario corretos. |
 |
 
 
