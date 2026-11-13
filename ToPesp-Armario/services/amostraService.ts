@@ -5,24 +5,44 @@ import {
   doc,
   getDoc,
   getDocs,
-  orderBy,
   query,
   serverTimestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { Amostra, AmostraInput, Categoria } from '../types';
 import { COLECOES } from '../utils/constants';
 
 const colecao = collection(db, COLECOES.AMOSTRAS);
 
-function usuarioAtual(): string {
-  const uid = auth.currentUser?.uid;
-  if (!uid) {
-    throw new Error('Faça login para acessar o acervo.');
-  }
-  return uid;
+/**
+ * Aguarda o Firebase Auth terminar de inicializar e retorna o UID do usuário.
+ * Evita race condition em que auth.currentUser ainda é null durante o boot do app,
+ * pois o SDK do Firebase restaura a sessão de forma assíncrona via AsyncStorage.
+ */
+function aguardarUsuarioAtual(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // currentUser é null antes da inicialização E null quando não há sessão.
+    // A diferença é que currentUser sai de "undefined" para null/User após init.
+    // Na prática, o SDK sempre dispara onAuthStateChanged ao ser registrado,
+    // então aguardar o primeiro evento é a forma segura de obter o estado real.
+    const timeoutId = setTimeout(() => {
+      unsubscribe();
+      reject(new Error('Tempo limite de autenticação atingido. Faça login novamente.'));
+    }, 5000);
+
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+      if (user?.uid) {
+        resolve(user.uid);
+      } else {
+        reject(new Error('Faça login para acessar o acervo.'));
+      }
+    });
+  });
 }
 
 export async function listarAmostras(
@@ -30,7 +50,7 @@ export async function listarAmostras(
   tipo?: string,
   termoBusca?: string
 ): Promise<Amostra[]> {
-  const uid = usuarioAtual();
+  const uid = await aguardarUsuarioAtual();
 
   let amostras: Amostra[] = [];
 
@@ -76,20 +96,20 @@ export async function listarAmostras(
 }
 
 export async function buscarAmostra(id: string): Promise<Amostra> {
-  usuarioAtual();
+  const uid = await aguardarUsuarioAtual();
   const snapshot = await getDoc(doc(db, COLECOES.AMOSTRAS, id));
   if (!snapshot.exists()) {
     throw new Error('Amostra não encontrada.');
   }
   const data = snapshot.data();
-  if (data.createdBy !== auth.currentUser?.uid) {
+  if (data.createdBy !== uid) {
     throw new Error('Amostra não encontrada no seu acervo.');
   }
   return { id: snapshot.id, ...data } as Amostra;
 }
 
 export async function criarAmostra(dados: AmostraInput): Promise<string> {
-  const uid = usuarioAtual();
+  const uid = await aguardarUsuarioAtual();
 
   if (!dados.nome || !dados.nome.trim()) {
     throw new Error('O nome da amostra é obrigatório.');
@@ -116,7 +136,7 @@ export async function criarAmostra(dados: AmostraInput): Promise<string> {
 }
 
 export async function atualizarAmostra(id: string, dados: AmostraInput): Promise<void> {
-  usuarioAtual();
+  await aguardarUsuarioAtual();
 
   if (!dados.nome || !dados.nome.trim()) {
     throw new Error('O nome da amostra é obrigatório.');
@@ -140,7 +160,7 @@ export async function atualizarAmostra(id: string, dados: AmostraInput): Promise
 }
 
 export async function removerAmostra(id: string): Promise<void> {
-  usuarioAtual();
+  await aguardarUsuarioAtual();
   await deleteDoc(doc(db, COLECOES.AMOSTRAS, id));
 }
 

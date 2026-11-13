@@ -1,0 +1,28 @@
+# Dependências
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Variáveis de ambiente (NÃO commitar chaves sensíveis!)
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# Android
+android/
+*.apk
+
+# iOS
+ios/
+*.ipa

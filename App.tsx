@@ -90,8 +90,16 @@ export default function App() {
     );
   }
 
+  const TELAS_PRIVADAS: TelaNome[] = ['Inicio', 'Formulario', 'Detalhes', 'Perfil', 'Sobre'];
+
   function renderizarTela() {
     const { tela, params } = rotaAtual;
+
+    // Guard: se a tela é privada e o usuário não está autenticado, redireciona para Login
+    if (!usuarioAutenticado && TELAS_PRIVADAS.includes(tela)) {
+      return <LoginScreen navigation={navigationProp} onNavigate={navegar} route={{ params: undefined }} params={undefined} />;
+    }
+
     const props = {
       navigation: navigationProp,
       onNavigate: navegar,
