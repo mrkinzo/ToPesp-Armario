@@ -12,6 +12,7 @@ web-build/
 .env.*.local
 
 # Logs
+.npm/
 npm-debug.*
 yarn-debug.*
 yarn-error.*

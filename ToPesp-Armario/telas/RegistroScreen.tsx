@@ -11,6 +11,7 @@ import {
 import { Cabecalho, Rodape, CampoTexto, Botao, Separador } from '../components/UI';
 import { registrar } from '../services/authService';
 import { CORES, FONTE_SERIF } from '../utils/constants';
+import { exibirAlerta } from '../utils/alerta';
 
 interface RegistroScreenProps {
   navigation?: any;
@@ -46,29 +47,35 @@ export default function RegistroScreen({ navigation, onNavigate }: RegistroScree
     if (senha.length < 6) {
       const msg = 'A senha deve conter no mínimo 6 caracteres.';
       setErro(msg);
-      Alert.alert('Senha Curta', msg);
+      exibirAlerta('Senha Curta', msg);
       return;
     }
 
     if (senha !== confirmarSenha) {
       const msg = 'As senhas informadas não coincidem.';
       setErro(msg);
-      Alert.alert('Incompatibilidade', msg);
+      exibirAlerta('Incompatibilidade', msg);
       return;
     }
 
     try {
       setCarregando(true);
       await registrar(nome.trim(), email.trim(), senha);
-      Alert.alert('Sucesso', 'Conta de colecionador criada com sucesso!');
+      exibirAlerta('Sucesso', 'Conta de colecionador criada com sucesso!');
       navegar('Inicio');
     } catch (err: any) {
-      const msg =
-        err.code === 'auth/email-already-in-use'
-          ? 'Este email já está cadastrado em outra conta.'
-          : err.message || 'Falha ao realizar cadastro. Tente novamente.';
+      let msg = err.message || 'Falha ao realizar cadastro. Tente novamente.';
+      if (err.code === 'auth/email-already-in-use') {
+        msg = 'Este email já está cadastrado em outra conta.';
+      } else if (err.code === 'auth/configuration-not-found') {
+        msg = 'O provedor de Autenticação (Email/Senha) precisa ser ativado no Firebase Console do seu projeto.';
+      } else if (err.code === 'auth/weak-password') {
+        msg = 'A senha deve ter no mínimo 6 caracteres.';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'Formato de email inválido.';
+      }
       setErro(msg);
-      Alert.alert('Erro de Cadastro', msg);
+      exibirAlerta('Erro de Cadastro', msg);
     } finally {
       setCarregando(false);
     }

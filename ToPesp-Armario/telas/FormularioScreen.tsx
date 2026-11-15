@@ -28,6 +28,7 @@ import {
   TIPOS_MINERAL,
   ESCALA_MOHS,
 } from '../utils/constants';
+import { exibirAlerta } from '../utils/alerta';
 
 interface FormularioScreenProps {
   route?: { params?: { id?: string; amostra?: Amostra; categoriaInicial?: Categoria } };
@@ -96,7 +97,7 @@ export default function FormularioScreen({
         if (isAuthError) {
           navegar('Login');
         } else {
-          Alert.alert('Erro ao carregar', err.message || 'Não foi possível carregar a amostra.');
+          exibirAlerta('Erro ao carregar', err.message || 'Não foi possível carregar a amostra.');
           voltar();
         }
       } finally {
@@ -113,14 +114,14 @@ export default function FormularioScreen({
     if (!nome.trim()) {
       const msg = 'O nome da amostra é obrigatório.';
       setErro(msg);
-      Alert.alert('Validação', msg);
+      exibirAlerta('Validação', msg);
       return;
     }
 
     if (!tipo.trim()) {
       const msg = 'O tipo da amostra é obrigatório.';
       setErro(msg);
-      Alert.alert('Validação', msg);
+      exibirAlerta('Validação', msg);
       return;
     }
 
@@ -130,7 +131,7 @@ export default function FormularioScreen({
       if (isNaN(valorConvertido) || valorConvertido < 1 || valorConvertido > 10) {
         const msg = 'A dureza na escala de Mohs deve ser um número entre 1 e 10.';
         setErro(msg);
-        Alert.alert('Dureza Inválida', msg);
+        exibirAlerta('Dureza Inválida', msg);
         return;
       }
       durezaNum = valorConvertido;
@@ -150,11 +151,11 @@ export default function FormularioScreen({
       setSalvando(true);
       if (idEdicao) {
         await atualizarAmostra(idEdicao, payload);
-        Alert.alert('Atualizado', 'Amostra atualizada com sucesso!');
+        exibirAlerta('Atualizado', 'Amostra atualizada com sucesso!');
         navegar('Detalhes', { id: idEdicao });
       } else {
         const novoId = await criarAmostra(payload);
-        Alert.alert('Cadastrado', 'Amostra inserida no armário com sucesso!');
+        exibirAlerta('Cadastrado', 'Amostra inserida no armário com sucesso!');
         navegar('Detalhes', { id: novoId });
       }
     } catch (err: any) {
@@ -164,7 +165,7 @@ export default function FormularioScreen({
         navegar('Login');
       } else {
         setErro(err.message || 'Falha ao salvar amostra.');
-        Alert.alert('Erro', err.message || 'Falha ao salvar amostra.');
+        exibirAlerta('Erro', err.message || 'Falha ao salvar amostra.');
       }
     } finally {
       setSalvando(false);

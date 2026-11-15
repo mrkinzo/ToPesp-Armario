@@ -113,7 +113,7 @@ export function Botao({
   estiloTexto,
 }: BotaoProps) {
   let estiloBotao = estilos.botaoPrimario;
-  let estiloDoTexto = estilos.botaoTextoPrimario;
+  let estiloDoTexto: TextStyle = estilos.botaoTextoPrimario;
 
   if (variante === 'secundario') {
     estiloBotao = estilos.botaoSecundario;

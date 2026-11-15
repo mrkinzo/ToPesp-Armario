@@ -22,6 +22,7 @@ import { listarAmostras } from '../services/amostraService';
 import { sair } from '../services/authService';
 import { Amostra, Categoria } from '../types';
 import { CORES, FONTE_SERIF, TIPOS_ROCHA, TIPOS_MINERAL } from '../utils/constants';
+import { confirmarAcao, exibirAlerta } from '../utils/alerta';
 
 interface InicioScreenProps {
   navigation?: any;
@@ -81,21 +82,20 @@ export default function InicioScreen({ navigation, onNavigate }: InicioScreenPro
   }, [navigation, carregarDados]);
 
   async function handleSair() {
-    Alert.alert('Sair da Conta', 'Deseja realmente encerrar sua sessão?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Sair',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await sair();
-            navegar('Login');
-          } catch {
-            Alert.alert('Erro', 'Não foi possível desconectar.');
-          }
-        },
+    confirmarAcao(
+      'Sair da Conta',
+      'Deseja realmente encerrar sua sessão?',
+      async () => {
+        try {
+          await sair();
+          navegar('Login');
+        } catch {
+          exibirAlerta('Erro', 'Não foi possível desconectar.');
+        }
       },
-    ]);
+      undefined,
+      'Sair'
+    );
   }
 
   // Estatísticas calculadas sobre a listagem

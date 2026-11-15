@@ -11,6 +11,7 @@ import { obterUsuarioAtual, buscarDadosUsuario, sair } from '../services/authSer
 import { obterEstatisticas } from '../services/amostraService';
 import { Usuario } from '../types';
 import { CORES, FONTE_SERIF } from '../utils/constants';
+import { confirmarAcao, exibirAlerta } from '../utils/alerta';
 
 interface PerfilScreenProps {
   navigation?: any;
@@ -70,21 +71,20 @@ export default function PerfilScreen({ navigation, onNavigate }: PerfilScreenPro
   }, []);
 
   async function handleSair() {
-    Alert.alert('Confirmar Saída', 'Deseja realmente desconectar de sua conta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Desconectar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await sair();
-            navegar('Login');
-          } catch {
-            Alert.alert('Erro', 'Não foi possível desconectar.');
-          }
-        },
+    confirmarAcao(
+      'Confirmar Saída',
+      'Deseja realmente desconectar de sua conta?',
+      async () => {
+        try {
+          await sair();
+          navegar('Login');
+        } catch {
+          exibirAlerta('Erro', 'Não foi possível desconectar.');
+        }
       },
-    ]);
+      undefined,
+      'Desconectar'
+    );
   }
 
   return (

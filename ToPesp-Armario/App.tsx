@@ -97,7 +97,7 @@ export default function App() {
 
     // Guard: se a tela é privada e o usuário não está autenticado, redireciona para Login
     if (!usuarioAutenticado && TELAS_PRIVADAS.includes(tela)) {
-      return <LoginScreen navigation={navigationProp} onNavigate={navegar} route={{ params: undefined }} params={undefined} />;
+      return <LoginScreen navigation={navigationProp} onNavigate={navegar} />;
     }
 
     const props = {

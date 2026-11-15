@@ -11,6 +11,7 @@ import {
 import { Cabecalho, Rodape, CampoTexto, Botao, Separador } from '../components/UI';
 import { entrar } from '../services/authService';
 import { CORES, FONTE_SERIF } from '../utils/constants';
+import { exibirAlerta } from '../utils/alerta';
 
 interface LoginScreenProps {
   navigation?: any;
@@ -36,7 +37,7 @@ export default function LoginScreen({ navigation, onNavigate }: LoginScreenProps
     if (!email.trim() || !senha.trim()) {
       const msg = 'Por favor, informe seu email e senha.';
       setErro(msg);
-      Alert.alert('Campos Obrigatórios', msg);
+      exibirAlerta('Campos Obrigatórios', msg);
       return;
     }
 
@@ -45,12 +46,20 @@ export default function LoginScreen({ navigation, onNavigate }: LoginScreenProps
       await entrar(email.trim(), senha);
       navegar('Inicio');
     } catch (err: any) {
-      const msg =
-        err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found'
-          ? 'Email ou senha incorretos.'
-          : 'Não foi possível entrar. Verifique seus dados e tente novamente.';
+      let msg = 'Não foi possível entrar. Verifique seus dados e tente novamente.';
+      if (
+        err.code === 'auth/invalid-credential' ||
+        err.code === 'auth/user-not-found' ||
+        err.code === 'auth/wrong-password'
+      ) {
+        msg = 'Email ou senha incorretos.';
+      } else if (err.code === 'auth/configuration-not-found') {
+        msg = 'O provedor de Autenticação (Email/Senha) precisa ser ativado no Firebase Console do seu projeto.';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'Formato de email inválido.';
+      }
       setErro(msg);
-      Alert.alert('Erro no Login', msg);
+      exibirAlerta('Erro no Login', msg);
     } finally {
       setCarregando(false);
     }

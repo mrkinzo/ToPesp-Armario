@@ -10,6 +10,7 @@ import { Cabecalho, Rodape, Botao, Carregando, Separador } from '../components/U
 import { buscarAmostra, removerAmostra } from '../services/amostraService';
 import { Amostra } from '../types';
 import { CORES, FONTE_SERIF, ESCALA_MOHS } from '../utils/constants';
+import { confirmarAcao, exibirAlerta } from '../utils/alerta';
 
 interface DetalhesScreenProps {
   route?: { params?: { id: string } };
@@ -80,28 +81,23 @@ export default function DetalhesScreen({
 
     const tipoAmostra = amostra.categoria === 'rocha' ? 'esta rocha' : 'este mineral';
 
-    Alert.alert(
+    confirmarAcao(
       'Confirmar Exclusão',
       `Deseja realmente remover ${tipoAmostra} ("${amostra.nome}") do seu armário? Esta ação não pode ser desfeita.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir Definitivamente',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setExcluindo(true);
-              await removerAmostra(amostra.id);
-              Alert.alert('Sucesso', 'Amostra removida do armário.');
-              navegar('Inicio');
-            } catch (err: any) {
-              Alert.alert('Erro ao excluir', err.message || 'Falha ao remover amostra.');
-            } finally {
-              setExcluindo(false);
-            }
-          },
-        },
-      ]
+      async () => {
+        try {
+          setExcluindo(true);
+          await removerAmostra(amostra.id);
+          exibirAlerta('Sucesso', 'Amostra removida do armário.');
+          navegar('Inicio');
+        } catch (err: any) {
+          exibirAlerta('Erro ao excluir', err.message || 'Falha ao remover amostra.');
+        } finally {
+          setExcluindo(false);
+        }
+      },
+      undefined,
+      'Excluir Definitivamente'
     );
   }
 
