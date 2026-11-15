@@ -10,7 +10,7 @@ web-build/
 .env
 .env.local
 .env.*.local
-
+.rules
 # Logs
 .npm/
 npm-debug.*
